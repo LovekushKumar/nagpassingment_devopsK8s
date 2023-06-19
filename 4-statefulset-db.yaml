@@ -1,0 +1,53 @@
+# This is the Headless service for the Stateful database
+#
+# Created by Lovekush Kumar (3163193) for NAGP Assignment of DevOps and Kubernetes Advance
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database-statefulset
+spec:
+  serviceName: database-headless-service  # Name of Headless service
+  replicas: 1                             # Replica 1 as per requirement defined in assignment
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: database-container         # Name of container
+          image: postgres:13               # Name of Postres Imagem this will be pulled from Docker Hub
+          env:
+            - name: POSTGRES_USER          # This is the Postgres user that is defined in configMap 
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config     # Name of configMap 
+                  key: POSTGRES_USER        # Value of configMap
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret     # Password is defined in Secret
+                  key: POSTGRES_PASSWORD    # Value of the Password is coming from Secret
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config     # Database name is defined in the configMap
+                  key: POSTGRES_DB          # Value of Databse name is coming from configMap
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: database
+              mountPath: /var/lib/postgresql/data     # Path to mount the Volume
+              subPath: data
+  volumeClaimTemplates:
+    - metadata:
+        name: database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi               # Setting storage to 1gb

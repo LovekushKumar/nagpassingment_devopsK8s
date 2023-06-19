@@ -1,0 +1,11 @@
+# This is the configMap for the Stateful database
+#
+# Created by Lovekush Kumar (3163193) for NAGP Assignment of DevOps and Kubernetes Advance
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+data:
+  POSTGRES_USER: dba      # Name of DB Admin user
+  POSTGRES_DB: database   # Name of database

@@ -1,0 +1,46 @@
+# This is the deployment of my custom image published on Docker Hub
+#
+# Created by Lovekush Kumar (3163193) for NAGP Assignment of DevOps and Kubernetes Advance
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservice-deployment
+spec:
+  replicas: 4               # Replica is set to 4 as deifned in assignment
+  selector:
+    matchLabels:
+      app: microservice
+  template:
+    metadata:
+      labels:
+        app: microservice
+    spec:
+      containers:
+        - name: microservice-container
+          image: lovekushkumar/6593831ef017   # Docker hub image of node js application
+          resources:
+            requests:
+              memory: "64Mi"                  # Setting the default memory to 64mb
+              cpu: "250m"                     # Setting the default CPU to 250mb
+            limits:
+              memory: "128Mi"                 # Setting the Memory limit to 128mb 
+              cpu: "400m"                     # Setting the CPU limit to 200mb
+          ports:
+            - containerPort: 3010
+
+---
+#Load Balancer service for the microservice mapping the container port 3010 with 80 port
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservice-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: microservice
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3010     # Port 3010 is defined in Image of node js application and exposed the same in Dockerfile.
